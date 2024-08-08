@@ -53,13 +53,13 @@ func (f FileInMem) ReadContentsByPart() (*io.PipeReader, string) {
 			return
 		}
 		defer file.Close()
-		part3, err := writer.CreateFormFile("file", "large-file.json")
+		FormFile, err := writer.CreateFormFile("file", "large-file.json")
 		if err != nil {
 			log.Println("ERROR creating CreateFormFile" + f.Filename + " error: " + err.Error())
 			pw.CloseWithError(err)
 			return
 		}
-		_, err = io.Copy(part3, file)
+		_, err = io.Copy(FormFile, file)
 		if err != nil {
 			log.Println("ERROR copying" + f.Filename + " error: " + err.Error())
 			pw.CloseWithError(err)
