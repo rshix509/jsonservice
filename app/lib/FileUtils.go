@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"log"
-	"mime/multipart"
 	"os"
 
 	"github.com/rshix509/jsonservice/app/lib/models"
@@ -38,11 +37,9 @@ func (f FileInMem) ReadContentsAndStoreStruct() {
 	}
 }
 
-func (f FileInMem) ReadContentsByPart() (*io.PipeReader, string) {
+func (f FileInMem) ReadContentsByPart() *io.PipeReader {
 
 	pr, pw := io.Pipe()
-	writer := multipart.NewWriter(pw)
-	ct := writer.FormDataContentType()
 
 	go func() {
 
@@ -53,21 +50,16 @@ func (f FileInMem) ReadContentsByPart() (*io.PipeReader, string) {
 			return
 		}
 		defer file.Close()
-		FormFile, err := writer.CreateFormFile("file", "large-file.json")
-		if err != nil {
-			log.Println("ERROR creating CreateFormFile" + f.Filename + " error: " + err.Error())
-			pw.CloseWithError(err)
-			return
-		}
-		_, err = io.Copy(FormFile, file)
+
+		_, err = io.Copy(pw, file)
 		if err != nil {
 			log.Println("ERROR copying" + f.Filename + " error: " + err.Error())
 			pw.CloseWithError(err)
 			return
 		}
-		pw.CloseWithError(writer.Close())
+		pw.CloseWithError(err)
 	}()
 
-	return pr, ct
+	return pr
 
 }

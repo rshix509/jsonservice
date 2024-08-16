@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var BYTE_SIZE = 20000
+
 func Pingpong(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"ping": "pong",
@@ -15,11 +17,9 @@ func Pingpong(c *gin.Context) {
 }
 
 func GetStream(c *gin.Context) {
-	iop, ct := F.ReadContentsByPart()
-	c.Header("content-type", ct)
-
+	iop := F.ReadContentsByPart()
 	c.Stream(func(w io.Writer) bool {
-		data := make([]byte, 20)
+		data := make([]byte, BYTE_SIZE)
 		_, err := iop.Read(data)
 		if err != nil && err.Error() != "EOF" {
 			log.Println("Error occurred while reading contents" + err.Error())
